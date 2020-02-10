@@ -1,0 +1,18 @@
+vm_offset: 4 ### where to start name
+install_config_file: install-config.yaml
+domain_name: test.com
+cluster_name: asocp4x
+vmware_cluster: lpvmw-cls
+datacenter: LDemo
+datastore: tpsw1_p1_d4
+vm_network: vlan_301
+worker_ips: 192.168.191.72,192.168.191.73
+network_netmask: 255.255.255.0
+network_gateway: 192.168.191.2
+network_dns: 192.168.191.65
+worker_vm_name_prefix: "{{ cluster_name }}-wrk"
+authorized_ssh_keys: 'ssh-rsa xxxxxxx'  # ssh key 
+rhcos_template: rhcos-4.3.0
+openshift_major_version: 4.3
+openshift_minor_version: 0
+#http_proxy: http://192.168.0.3:8888 #<OPTIONAL>

@@ -1,0 +1,23 @@
+domain_name: example.com
+cluster_name: openshift
+datacenter: TestDC
+datastore: Datastore01
+vmware_cluster: Cluster01
+vm_network: vlan_100
+vm_rootdisk_size: 120
+network_utility_ip: 192.168.0.10
+bootstrap_ip: 192.168.0.11
+master_ips: 192.168.0.12,192.168.0.13,192.168.0.14
+worker_ips: 192.168.0.15,192.168.0.16
+network_utility_netmask: 255.255.255.0
+network_utility_gateway: 192.168.0.1
+network_utility_dns_server: 8.8.8.8
+bootstrap_vm_name_prefix: "{{ cluster_name }}-bs"
+master_vm_name_prefix: "{{ cluster_name }}-mst"
+worker_vm_name_prefix: "{{ cluster_name }}-wrk"
+#pull_secret: '{"auths".....}' #<REQUIRED>
+#authorized_ssh_keys: 'ssh-rsa AAAAB.....' #<REQUIRED>
+rhcos_template: rhcos-4.2.0-20191015.0
+openshift_major_version: 4.2
+openshift_minor_version: 12
+#http_proxy: http://192.168.0.3:8888 #<OPTIONAL>

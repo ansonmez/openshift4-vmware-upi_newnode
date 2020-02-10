@@ -1,0 +1,57 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+  - default_vars.yaml
+  vars:
+    install_config: "{{ lookup('file', install_config_file) | from_yaml }}"
+    cluster_name: "{{ install_config.metadata.name }}"
+    worker_ign_file: "ignitions/{{ cluster_name }}/worker.ign"
+  tasks:
+    - set_fact:
+        worker_ip_addresses: "{{ worker_ips.split(',') }}"
+
+    - name: Create a VM folder on vCenter for new OpenShift cluster
+      vcenter_folder:
+        hostname: "{{ install_config.platform.vsphere.vcenter }}"
+        username: "{{ install_config.platform.vsphere.username }}"
+        password: "{{ install_config.platform.vsphere.password }}"
+        validate_certs: no
+        datacenter: "{{install_config.platform.vsphere.datacenter}}"
+        folder_name: "{{ cluster_name }}"
+        folder_type: vm
+        state: present
+
+    - name: Set node role to compute
+      set_fact:
+        node_role: compute
+        ignition_template: node.ign
+
+    - name: Read worker ignition config
+      set_fact:
+        ignition_data: "{{ lookup('file', worker_ign_file) }}"
+
+    - name: Create worker vms
+      include_tasks: create_vm.yaml
+      vars:
+        vm_name_prefix: "{{ worker_vm_name_prefix }}"
+        vm_offset: "{{ worker_vm_name_offset }}"
+        cpus: "{{ worker_vm_cpus }}"
+        memory: "{{ worker_vm_memory }}"
+        node_role: worker
+      with_items: "{{ worker_ip_addresses }}"
+      loop_control:
+        loop_var: ip
+        index_var: idx
+
+    - name: Configure worker VMs
+      include_tasks: add_openshift_vms.yaml
+      vars:
+        node_role: worker
+        ignition_template: node.ign.j2
+        ignition_data: "{{ lookup('file', worker_ign_file) }}"
+        network_utility_vm_name: "{{ cluster_name }}-utility"
+      with_items: "{{ groups.worker }}"
+      loop_control:
+        loop_var: node_name
+        index_var: idx
